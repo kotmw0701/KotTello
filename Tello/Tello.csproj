@@ -58,7 +58,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="ConnectionState.cs" />
     <Compile Include="CRC.cs" />
+    <Compile Include="FlyData.cs" />
     <Compile Include="Received.cs" />
     <Compile Include="Tello.cs" />
     <Compile Include="UdpBase.cs" />

@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Tello {
-    class Tello {
-
+    public class Tello {
+       public static int wifiStrength = 0;
     }
 }
