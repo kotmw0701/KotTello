@@ -5,5 +5,6 @@ Telloをゲームパッドで操作するアレ
 - SlimDX 4.0.13.44
 
 ## 参考
-Telloのバイナリ通信プロトコル（初歩編）｜松本圭司 ｜note（ノート）
- https://note.mu/keizi666/n/nddef168ffb76
+Kragrathea/TelloLib: https://github.com/Kragrathea/TelloLib
+
+~~ほぼコピペなのは気にしないでというか参考コードが汚すぎて使いたくなかった~~

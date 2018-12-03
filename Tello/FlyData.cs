@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -124,6 +125,71 @@ namespace Tello {
                 }
                 pos += length;
             }
+        }
+
+        public double[] toElter() {
+            float qX = quatX, qY = quatY, qZ = quatZ, qW = quatW;
+
+            double sqW = Math.Pow(qW, 2), sqX = Math.Pow(qX, 2), sqY = Math.Pow(qY, 2), sqZ = Math.Pow(qZ, 2);
+            double yaw = 0.0, roll = 0.0, pitch = 0.0, unit = sqW + sqX + sqY + sqZ;
+            double[] retv = new double[3];
+            double test = qW * qX + qY * qZ;
+
+            if(test > 0.499 * unit) {
+                yaw = 2 * Math.Atan2(qY, qW);
+                pitch = 2 / Math.PI;
+                roll = 0;
+            } else if (test < -0.499 * unit) {
+                yaw = -2 * Math.Atan2(qY, qW);
+                pitch = -2 / Math.PI;
+                roll = 0;
+            } else {
+                yaw = Math.Atan2(2.0 * (qW * qZ - qX * qY), 1.0 - 2.0 * (sqZ + sqX));
+                roll = Math.Asin(2.0 * test / unit);
+                pitch = Math.Atan2(2.0 * (qW * qY - qX * qZ), 1.0 - 2.0 * (sqY + sqX));
+            }
+
+            retv[0] = pitch;
+            retv[1] = roll;
+            retv[2] = yaw;
+            return retv;
+        }
+
+        public string GetLogHeader() {
+            StringBuilder sb = new StringBuilder();
+            foreach (FieldInfo property in this.GetType().GetFields()) {
+                sb.Append(property.Name);
+                sb.Append(",");
+            }
+            sb.AppendLine();
+            return sb.ToString();
+        }
+
+        public string GetLogLine() {
+            StringBuilder sb = new StringBuilder();
+            foreach (FieldInfo property in this.GetType().GetFields()) {
+                if (property.FieldType == typeof(Boolean)) {
+                    if ((bool)property.GetValue(this))
+                        sb.Append("1");
+                    else
+                        sb.Append("0");
+                } else sb.Append(property.GetValue(this));
+                sb.Append(",");
+            }
+            sb.AppendLine();
+            return sb.ToString();
+        }
+
+        public override string ToString() {
+            StringBuilder sb = new StringBuilder();
+            var count = 0;
+            foreach (FieldInfo property in this.GetType().GetFields()) {
+                sb.Append(property.Name).Append(": ").Append(property.GetValue(this));
+                if (count++ % 2 == 1) sb.Append(System.Environment.NewLine);
+                else sb.Append("      ");
+
+            }
+            return sb.ToString();
         }
     }
 }
