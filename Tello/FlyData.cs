@@ -66,7 +66,7 @@ namespace Tello {
             index++;
             temperatureHeight = (data[index] >> 0 & 1);
 
-            wifiStrength = Tello.wifiStrength;
+            wifiStrength = TelloMain.wifiStrength;
         }
 
         public void parseLog(byte[] data) {

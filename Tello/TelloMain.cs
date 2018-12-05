@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Tello {
-    public class Tello {
+    public class TelloMain {
         private static UdpUser client;
         private static DateTime lastMessageTime;//タイムアウトのアレ
         public static int wifiStrength = 0;
