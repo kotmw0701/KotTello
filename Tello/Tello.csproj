@@ -81,6 +81,7 @@
     <Compile Include="ConnectionState.cs" />
     <Compile Include="CRC.cs" />
     <Compile Include="FlyData.cs" />
+    <Compile Include="GamePadManager.cs" />
     <Compile Include="Received.cs" />
     <Compile Include="TelloMain.cs" />
     <Compile Include="UdpBase.cs" />
