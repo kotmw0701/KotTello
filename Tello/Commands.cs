@@ -10,17 +10,25 @@ namespace Tello {
          * ・crc8とcrc16はここでの定義時は0x00でおｋ → CRCクラスで計算して入れてくれる
          * ・sequenceも0x00でいい → Send時にインクリメントする
          * ・packetLenもこれ計算して入れたほうが良いんじゃね？ → 固定だし大丈夫でしょ
-         * ・
+         * 
+         * PacketType
+         *  0 : Telloからなら 1 になる
+         *  1 : Telloへなら 1 になる
+         *  2 : ┐
+         *  3 : ├ 3-bitのパケットタイプ(？)
+         *  4 : ┘
+         *  5 : ┐
+         *  6 : ├ 3-bitのサブパケットタイプ(？)
+         *  7 : ┘
+         * 
          */
         //                                        0     1     2     3     4     5     6     7     8     9     10    11    12    13    14    15    16    17    18    19    20    21    22
         //                                        head  packetLen   crc8  type  commandID    sequence     crc16
         public static readonly byte[] TAKEOFF = { 0xCC, 0x58, 0x00, 0x00, 0x68, 0x54, 0x00, 0x00, 0x00, 0x00, 0x00};//データ部分はありません
         //                                        head  packetLen   crc8  type  commandID    sequence   data    crc16
         public static readonly byte[] LAND =    { 0xCC, 0x60, 0x00, 0x00, 0x68, 0x55, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
-        //                                        head  packetLen   crc8  type  commandID    sequence  
-        public static readonly byte[] STICK =   { 0xCC, 0xB0, 0x00, 0x00, 0x60, 0x50, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
-        //                                        0xcc, 0xb0, 0x00, 0x7f, 0x60, 0x50, 0x00, 0x00, 0x00, 0x00, 0x04, 0x20, 0x00, 0x01, 0x08
-        //                                        0xcc, 0xb0, 0x00, 0x7f, 0x60, 0x50, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x12, 0x16, 0x01, 0x0e, 0x00, 0x25, 0x54  
+        //                                        head  packetLen   crc8  type  commandID    sequence   [          JoystickData          ]  hour  min   sec   millisecond   crc16
+        public static readonly byte[] STICK =   { 0xCC, 0xB0, 0x00, 0x00, 0x60, 0x50, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
         public static readonly byte[] TEMP =    { 0xCC, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
         public static readonly byte[] TEMP2 =   { 0xCC, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
         public static readonly byte[] TEMP3 =   { 0xCC, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
@@ -70,5 +78,58 @@ namespace Tello {
         public static readonly byte[] TEMP48 =  { 0xCC, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
         public static readonly byte[] TEMP49 =  { 0xCC, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
         public static readonly byte[] TEMP50 =  { 0xCC, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+
+    }
+
+    enum CommandType : ushort{          // Direction
+        Connect =               0x0001, //    ->
+        Connected =             0x0002, //    <-
+        Query_SSID =            0x0011, //    <>
+        Set_SSID =              0x0012, //    ->
+        Query_Pass =            0x0013, //    ->
+        Set_Pass =              0x0014, //    ->
+        Query_WiFi =            0x0015, //    ->
+        Set_WiFi =              0x0016, //    ->
+        WiFi_Str =              0x001A, //    <-
+        Set_VideoBitRate =      0x0020, //    ->
+        Set_VideoDynRate =      0x0021, //    ->
+        Set_Eis =               0x0024, //    ->
+        Req_Video =             0x0025, //    ->
+        Query_VideoBitRate =    0x0028, //    <>
+        TakePicture =           0x0030, //    <>
+        Set_VideoAspect =       0x0031, //    <>
+        Start_Rec =             0x0032, //    ->
+        EValue =                0x0034, // 
+        Light_Str =             0x0035, //    <-
+        Query_JpegQty =         0x0037, //    ->
+        Error_1 =               0x0043, //    <-
+        Error_2 =               0x0044, //    <-
+        Query_Ver =             0x0045, //    <>
+        Set_Date =              0x0046, //    <>
+        Query_ActivTime =       0x0047, //    ->
+        Query_LoaderVar =       0x0049, //    ->
+        Set_Sticks =            0x0050, //    ->
+        TakeOff =               0x0054, //    <>
+        Land =                  0x0055, //    <>
+        FightStat =             0x0056, //    <-
+        Set_HeightLim =         0x0058, //    ->
+        Flip =                  0x005C, //    ->
+        ThrowTakeOff =          0x005D, //    ->
+        PalmLand =              0x005E, //    ->
+        FileSize =              0x0062, //    <-
+        FileData =              0x0063, //    <-
+        FileDone =              0x0064, //    <-
+        Start_SmartVideo =      0x0080, //    ->
+        SmartVideoStat =        0x0081, //    <-
+        LogHeader =             0x1050, //    <>
+        LogData =               0x1051, //    <-
+        LogConf =               0x1052, //    <-
+        Bounce =                0x1053, //    ->
+        Calibration =           0x1054, //    ->
+        Set_LowBatTreshold =    0x1055, //    <>
+        Query_HeightLim =       0x1056, //    <>
+        Query_LowBatThreshold = 0x1057, //    <>
+        Query_Attitude =        0x1058, //    ->
+        Set_Attitude =          0x1059  //    ->
     }
 }

@@ -12,8 +12,6 @@ namespace Tello {
 
         private static ushort sequence = 1;
 
-        
-
         private static void SetPacketSequence(byte[] packet) {
             packet[7] = (byte)(sequence & 0xFF);
             packet[8] = (byte)((sequence >> 8) & 0xFF);
