@@ -1,0 +1,53 @@
+﻿namespace Tello {
+    internal enum CommandType : ushort{          // Direction
+        Connect =               0x0001, //    ->
+        Connected =             0x0002, //    <-
+        Query_SSID =            0x0011, //    <>
+        Set_SSID =              0x0012, //    ->
+        Query_Pass =            0x0013, //    ->
+        Set_Pass =              0x0014, //    ->
+        Query_WiFi =            0x0015, //    ->
+        Set_WiFi =              0x0016, //    ->
+        WiFi_Str =              0x001A, //    <-
+        Set_VideoBitRate =      0x0020, //    ->
+        Set_VideoDynRate =      0x0021, //    ->
+        Set_Eis =               0x0024, //    ->
+        Req_Video =             0x0025, //    ->
+        Query_VideoBitRate =    0x0028, //    <>
+        TakePicture =           0x0030, //    <>
+        Set_VideoAspect =       0x0031, //    <>
+        Start_Rec =             0x0032, //    ->
+        EValue =                0x0034, // 
+        Light_Str =             0x0035, //    <-
+        Query_JpegQty =         0x0037, //    ->
+        Error_1 =               0x0043, //    <-
+        Error_2 =               0x0044, //    <-
+        Query_Ver =             0x0045, //    <>
+        Set_Date =              0x0046, //    <>
+        Query_ActivTime =       0x0047, //    ->
+        Query_LoaderVar =       0x0049, //    ->
+        Set_Sticks =            0x0050, //    ->
+        TakeOff =               0x0054, //    <>
+        Land =                  0x0055, //    <>
+        FightStat =             0x0056, //    <-
+        Set_HeightLim =         0x0058, //    ->
+        Flip =                  0x005C, //    ->
+        ThrowTakeOff =          0x005D, //    ->
+        PalmLand =              0x005E, //    ->
+        FileSize =              0x0062, //    <-
+        FileData =              0x0063, //    <-
+        FileDone =              0x0064, //    <-
+        Start_SmartVideo =      0x0080, //    ->
+        SmartVideoStat =        0x0081, //    <-
+        LogHeader =             0x1050, //    <>
+        LogData =               0x1051, //    <-
+        LogConf =               0x1052, //    <-
+        Bounce =                0x1053, //    ->
+        Calibration =           0x1054, //    ->
+        Set_LowBatTreshold =    0x1055, //    <>
+        Query_HeightLim =       0x1056, //    <>
+        Query_LowBatThreshold = 0x1057, //    <>
+        Query_Attitude =        0x1058, //    ->
+        Set_Attitude =          0x1059  //    ->
+    }
+}

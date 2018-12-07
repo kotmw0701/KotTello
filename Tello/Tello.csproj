@@ -82,6 +82,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Commands.cs" />
+    <Compile Include="CommandType.cs" />
     <Compile Include="ConnectionState.cs" />
     <Compile Include="CRC.cs" />
     <Compile Include="FlyData.cs" />
