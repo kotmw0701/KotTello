@@ -12,15 +12,32 @@ namespace Tello {
 
         private static ushort sequence = 1;
         
-        public static void Stick(GamePadManager manager) {
-            byte[] packets = new byte[Commands.STICK.Length];
-            Array.Copy(Commands.STICK, packets, packets.Length);
-            short fastMode = (short)(manager.IsFastMode ? 1 : 0);
+        public static void TakeOff() {
+            byte[] packets = PacketCopy(Commands.TAKEOFF);
+            SetPacketSequence(packets);
+            SetPacketCRCs(packets);
+            client.Send(packets);
+        }
 
-            short rotation = (short)((manager.LeftX * 660) + 1024);
-            short throttle = (short)((manager.LeftY * 660) + 1024);
-            short pitch = (short)((manager.RightY * 660) + 1024);
-            short role = (short)((manager.RightX * 660) + 1024);
+        public static void Land() {
+            byte[] packets = PacketCopy(Commands.LAND);
+            SetPacketSequence(packets);
+            SetPacketCRCs(packets);
+            client.Send(packets);
+        }
+
+        public static void GamePadStick(GamePadManager manager) {
+            Stick(manager.IsFastMode, manager.LeftX, manager.LeftY, manager.RightY, manager.RightX);
+        }
+
+        public static void Stick(bool isFast, double ratioRotation, double ratioThrottle, double ratioPitch, double ratioRole) {
+            byte[] packets = PacketCopy(Commands.STICK);
+            short fastMode = (short)(isFast ? 1 : 0);
+
+            short rotation = (short)((ratioRotation * 660) + 1024);
+            short throttle = (short)((ratioThrottle * 660) + 1024);
+            short pitch = (short)((ratioPitch * 660) + 1024);
+            short role = (short)((ratioPitch * 660) + 1024);
 
             var data = (fastMode << 44) + (rotation << 22) + (pitch << 11) + role;
 
@@ -40,7 +57,13 @@ namespace Tello {
 
             SetPacketCRCs(packets);
 
-            //まだ送信してないです
+            client.Send(packets);
+        }
+
+        private static byte[] PacketCopy(byte[] sourceArray) {
+            byte[] packets = new byte[sourceArray.Length];
+            Array.Copy(sourceArray, packets, packets.Length);
+            return packets;
         }
 
         private static void SetPacketSequence(byte[] packet) {

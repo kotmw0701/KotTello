@@ -19,7 +19,7 @@ namespace Tello {
          * LeftStick → 同上
          * 
          * 高速モード
-         * RTrigger押し込み→LTrigger押し込み？(20ms以内)
+         * RightTrigger LeftTrigger同時押し
          * 
          * (ずっと割ってやろうと思ってたけど，これよく考えたら割合取ったほうが早いやんかなってなった)
          */
@@ -50,7 +50,6 @@ namespace Tello {
         public bool IsFastMode { get; private set; }
 
         private readonly Controller controller;
-        private bool fastChangeFlag, triggerFlag;
 
 
         public GamePadManager() {
@@ -74,21 +73,7 @@ namespace Tello {
             }
             LTrigger = pad.LeftTrigger / 255;
             RTrigger = pad.RightTrigger / 255;
-            if (RTrigger == 1.0) {
-                if (fastChangeFlag && LTrigger == 1.0) {
-                    IsFastMode = true;
-                    return;
-                }
-                if (!triggerFlag) {
-                    fastChangeFlag = true;
-                    triggerFlag = true;
-                } else
-                    fastChangeFlag = false;
-            } else {
-                triggerFlag = false;
-                fastChangeFlag = false;
-                IsFastMode = false;
-            }
+            IsFastMode = ((LTrigger == 1.0) && (RTrigger == 1.0));
         }
     }
 }
