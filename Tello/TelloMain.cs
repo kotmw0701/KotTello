@@ -60,6 +60,11 @@ namespace Tello {
             client.Send(packets);
         }
 
+        private static void Connect() {
+            client = UdpUser.ConnectTo("192.168.10.1", 8889);
+
+        }
+
         private static byte[] PacketCopy(byte[] sourceArray) {
             byte[] packets = new byte[sourceArray.Length];
             Array.Copy(sourceArray, packets, packets.Length);
