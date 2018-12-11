@@ -48,14 +48,16 @@ namespace Tello {
 
             CancellationToken token = this.token.Token;
             Task.Factory.StartNew(async () => {
-                while(!token.IsCancellationRequested) {
+                while (!token.IsCancellationRequested) {
                     var received = await client.Receive();
                     lastMessageTime = DateTime.Now;
                     Console.WriteLine(received.Message);
-                    if(state==ConnectionState.Connecting && received.Message.StartsWith("conn_ack")) {
+                    if (state == ConnectionState.Connecting && received.Message.StartsWith("conn_ack")) {
                         connected = true;
-
+                        continue;
                     }
+                    int cmdID = (received.bytes[5] | (received.bytes[6] << 8));
+                    Console.WriteLine(cmdID);
                 }
             }, token);
         }
@@ -69,6 +71,13 @@ namespace Tello {
 
         public static void Land() {
             byte[] packets = PacketCopy(Commands.LAND);
+            SetPacketSequence(packets);
+            SetPacketCRCs(packets);
+            client.Send(packets);
+        }
+
+        public static void requestIFrame() {
+            byte[] packets = PacketCopy(Commands.REQUEST_VIDEO);
             SetPacketSequence(packets);
             SetPacketCRCs(packets);
             client.Send(packets);

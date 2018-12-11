@@ -24,7 +24,7 @@ namespace Tello {
          * TAKEOFF 01101000
          * STICK   01100000
          */
-        //                                                0     1     2     3     4     5     6     7     8     9     10    11    12    13    14    15    16    17    18    19    20    21    22
+        //                                                0     1     2     3     4     5     6     7     8     9     10    11    12    13    14    15    16    17    18    19    20    21
         //                                                head  packetLen   crc8  type  commandID    sequence     crc16
         public static readonly byte[] TAKEOFF =         { 0xCC, 0x58, 0x00, 0x00, 0x68, 0x54, 0x00, 0x00, 0x00, 0x00, 0x00};//データ部分はありません
         //                                                head  packetLen   crc8  type  commandID    sequence   data    crc16
@@ -33,5 +33,7 @@ namespace Tello {
         public static readonly byte[] STICK =           { 0xCC, 0xB0, 0x00, 0x00, 0x60, 0x50, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
         //                                                head  pakcetLen   crc8  type  commandID    sequence   heightData    crc16
         public static readonly byte[] SET_MAXHEIGHT =   { 0xCC, 0x68, 0x00, 0x00, 0x68, 0x58, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+
+        public static readonly byte[] REQUEST_VIDEO =   { 0xcc, 0x58, 0x00, 0x00, 0x60, 0x25, 0x00, 0x00, 0x00, 0x00, 0x00 };//データ部分なしっぽい？
     }
 }
