@@ -19,6 +19,7 @@ namespace Tello {
     /// </summary>
     public partial class MainWindow : Window {
         public MainWindow() {
+            TelloMain tello = new TelloMain();
             InitializeComponent();
         }
     }

@@ -12,7 +12,10 @@ namespace Tello {
         public byte[] bytes;
 
         public override string ToString() {
-            return $"Sender={Sender.Address}:{Sender.Port} | Message=\"{Message}\"";
+            StringBuilder builder = new StringBuilder("[");
+            foreach (byte data in bytes) builder.Append(" 0x").Append(data.ToString("X2"));
+            builder.Append(" ]");
+            return $"Sender={Sender.Address}:{Sender.Port} | {builder.ToString()}";
         }
     }
 }

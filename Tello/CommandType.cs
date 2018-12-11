@@ -1,5 +1,5 @@
 ﻿namespace Tello {
-    internal enum CommandType : ushort{          // Direction
+    internal enum CommandType : ushort{// Direction
         Undefined =             0x0000,
         Connect =               0x0001, //    ->
         Connected =             0x0002, //    <-
@@ -9,7 +9,7 @@
         Set_Pass =              0x0014, //    ->
         Query_WiFi =            0x0015, //    ->
         Set_WiFi =              0x0016, //    ->
-        WiFi_Str =              0x001A, //    <-
+        WiFi_Str =              0x001A, //    <-    ※たまに飛んでくる
         Set_VideoBitRate =      0x0020, //    ->
         Set_VideoDynRate =      0x0021, //    ->
         Set_Eis =               0x0024, //    ->
@@ -19,7 +19,7 @@
         Set_VideoAspect =       0x0031, //    <>
         Start_Rec =             0x0032, //    ->
         EValue =                0x0034, // 
-        Light_Str =             0x0035, //    <-
+        Light_Str =             0x0035, //    <-    ※たまに飛んでくる
         Query_JpegQty =         0x0037, //    ->
         Error_1 =               0x0043, //    <-
         Error_2 =               0x0044, //    <-
@@ -30,7 +30,7 @@
         Set_Sticks =            0x0050, //    ->
         TakeOff =               0x0054, //    <>
         Land =                  0x0055, //    <>
-        FightStat =             0x0056, //    <-
+        FlightStat =            0x0056, //    <-    ※いっぱい飛んでくる
         Set_HeightLim =         0x0058, //    ->
         Flip =                  0x005C, //    ->
         ThrowTakeOff =          0x005D, //    ->
@@ -40,7 +40,7 @@
         FileDone =              0x0064, //    <-
         Start_SmartVideo =      0x0080, //    ->
         SmartVideoStat =        0x0081, //    <-
-        LogHeader =             0x1050, //    <>
+        LogHeader =             0x1050, //    <>    ※たまに飛んでくる
         LogData =               0x1051, //    <-
         LogConf =               0x1052, //    <-
         Bounce =                0x1053, //    ->

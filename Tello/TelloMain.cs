@@ -18,6 +18,10 @@ namespace Tello {
         private static ushort sequence = 1;
         private bool connected = false;
         
+        public TelloMain() {
+            Connection();
+        }
+
         private void Connection() {
             Task.Factory.StartNew(async () => {
                 var timeout = new TimeSpan(3000);
@@ -26,6 +30,7 @@ namespace Tello {
                         case ConnectionState.Disconnected:
                             Connect();
                             lastMessageTime = DateTime.Now;
+                            Listener();
                             break;
                         case ConnectionState.Connecting:
                         case ConnectionState.Connected:
@@ -51,13 +56,27 @@ namespace Tello {
                 while (!token.IsCancellationRequested) {
                     var received = await client.Receive();
                     lastMessageTime = DateTime.Now;
-                    Console.WriteLine(received.Message);
                     if (state == ConnectionState.Connecting && received.Message.StartsWith("conn_ack")) {
                         connected = true;
                         continue;
                     }
                     int cmdID = (received.bytes[5] | (received.bytes[6] << 8));
-                    Console.WriteLine(cmdID);
+                    Console.WriteLine($"0x{cmdID.ToString("X2")}");
+                }
+            }, token);
+
+            var videoServer = new UdpListener(VIDEO_PORT);
+
+            Task.Factory.StartNew(async () => {
+                try {
+                    while (!token.IsCancellationRequested) {
+                        Console.WriteLine("Video");
+                        var received = await videoServer.Receive();
+                        Console.WriteLine(received);
+                    }
+                } catch (Exception e) {
+                    Console.WriteLine("Video server Exception : " + e.Message);
+                    Console.WriteLine(e.StackTrace);
                 }
             }, token);
         }
@@ -118,7 +137,7 @@ namespace Tello {
         }
 
         private static void Connect() {
-            client = UdpUser.ConnectTo("192.168.10.3", 8889);
+            client = UdpUser.ConnectTo("192.168.10.1", 8889);
 
             state = ConnectionState.Connecting;
             //                       0     1     2     3     4     5     6     7     8     9     10    11    12    13    14    15    16    17    18    19    20    21    22
@@ -127,6 +146,7 @@ namespace Tello {
             byte[] connectPacket = Encoding.UTF8.GetBytes("conn_req:\x00\x00");
             connectPacket[connectPacket.Length - 2] = (byte)(VIDEO_PORT & 0xFF);
             connectPacket[connectPacket.Length - 1] = (byte)((VIDEO_PORT >> 8) & 0xFF);
+            Console.WriteLine($"{connectPacket[connectPacket.Length - 1] << 8} : {connectPacket[connectPacket.Length - 2]}");
             client.Send(connectPacket);
         }
 

@@ -92,7 +92,6 @@
     <Compile Include="UdpBase.cs" />
     <Compile Include="UdpListener.cs" />
     <Compile Include="UdpUser.cs" />
-    <Compile Include="VideoManager.cs" />
     <Compile Include="ViewModel.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
