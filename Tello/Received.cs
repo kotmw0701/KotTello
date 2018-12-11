@@ -10,5 +10,9 @@ namespace Tello {
         public IPEndPoint Sender;
         public string Message;
         public byte[] bytes;
+
+        public override string ToString() {
+            return $"Sender={Sender.Address}:{Sender.Port} | Message=\"{Message}\"";
+        }
     }
 }

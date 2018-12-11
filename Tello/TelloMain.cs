@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Tello {
@@ -9,9 +10,56 @@ namespace Tello {
         private static UdpUser client;
         private static DateTime lastMessageTime;//タイムアウトのアレ
         public static int wifiStrength = 0;
+        private static ConnectionState state = ConnectionState.Disconnected;
+        private CancellationTokenSource token = new CancellationTokenSource();
 
+
+        private static readonly int VIDEO_PORT = 0x1796;
         private static ushort sequence = 1;
+        private bool connected = false;
         
+        private void Connection() {
+            Task.Factory.StartNew(async () => {
+                var timeout = new TimeSpan(3000);
+                while(true) {
+                    switch (state) {
+                        case ConnectionState.Disconnected:
+                            Connect();
+                            lastMessageTime = DateTime.Now;
+                            break;
+                        case ConnectionState.Connecting:
+                        case ConnectionState.Connected:
+                            var elapsed = DateTime.Now - lastMessageTime;
+                            if (elapsed.Seconds > 2) {
+                                Console.WriteLine("Connection Timeout");
+                                //Disconnect;
+                            }
+                            break;
+                        case ConnectionState.Paused:
+                            lastMessageTime = DateTime.Now;
+                            break;
+                    }
+                    await Task.Delay(500);
+                }
+            });
+        }
+
+        private void Listener() {
+
+            CancellationToken token = this.token.Token;
+            Task.Factory.StartNew(async () => {
+                while(!token.IsCancellationRequested) {
+                    var received = await client.Receive();
+                    lastMessageTime = DateTime.Now;
+                    Console.WriteLine(received.Message);
+                    if(state==ConnectionState.Connecting && received.Message.StartsWith("conn_ack")) {
+                        connected = true;
+
+                    }
+                }
+            }, token);
+        }
+
         public static void TakeOff() {
             byte[] packets = PacketCopy(Commands.TAKEOFF);
             SetPacketSequence(packets);
@@ -61,8 +109,16 @@ namespace Tello {
         }
 
         private static void Connect() {
-            client = UdpUser.ConnectTo("192.168.10.1", 8889);
+            client = UdpUser.ConnectTo("192.168.10.3", 8889);
 
+            state = ConnectionState.Connecting;
+            //                       0     1     2     3     4     5     6     7     8     9     10    11    12    13    14    15    16    17    18    19    20    21    22
+            //                       head  packetLen   crc8  type  commandID    sequence      data
+            //byte[] connectPacket = { 0xCC, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00};
+            byte[] connectPacket = Encoding.UTF8.GetBytes("conn_req:\x00\x00");
+            connectPacket[connectPacket.Length - 2] = (byte)(VIDEO_PORT & 0xFF);
+            connectPacket[connectPacket.Length - 1] = (byte)((VIDEO_PORT >> 8) & 0xFF);
+            client.Send(connectPacket);
         }
 
         private static byte[] PacketCopy(byte[] sourceArray) {
