@@ -14,13 +14,13 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 
 namespace Tello {
-    /// <summary>
-    /// MainWindow.xaml の相互作用ロジック
-    /// </summary>
-    public partial class MainWindow : Window {
-        public MainWindow() {
-            TelloMain tello = new TelloMain();
-            InitializeComponent();
-        }
-    }
+	/// <summary>
+	/// MainWindow.xaml の相互作用ロジック
+	/// </summary>
+	public partial class MainWindow : Window {
+		public MainWindow() {
+			TelloMain tello = new TelloMain();
+			InitializeComponent();
+		}
+	}
 }

@@ -7,31 +7,31 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="505" Width="1155"
         ResizeMode="NoResize">
-    <Window.DataContext>
-        <local:ViewModel/>
-    </Window.DataContext>
-    <Grid>
-        <Border BorderBrush="#FF7C7C7C" Height="450" Width="800" BorderThickness="3" Margin="10,10,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" CornerRadius="5" >
-            <Image Margin="5" />
-        </Border>
-        <GroupBox Header="Operation Status" HorizontalAlignment="Left" Height="158" Margin="815,11,0,0" VerticalAlignment="Top" Width="320" BorderBrush="#FF8B8B8B">
-            <Grid>
-                <Label Content="FastMode" HorizontalAlignment="Left" Margin="5,20,0,0" VerticalAlignment="Top" Width="62"/>
-                <Label Content="Rotation" HorizontalAlignment="Left" Margin="5,50,0,0" VerticalAlignment="Top" Width="62"/>
-                <Label Content="Throttle" HorizontalAlignment="Left" Margin="162,50,0,0" VerticalAlignment="Top" Width="62"/>
-                <Label Content="Pitch" HorizontalAlignment="Left" Margin="5,80,0,0" VerticalAlignment="Top" Width="62" />
-                <Label Content="Role" HorizontalAlignment="Left" Margin="162,80,0,0" VerticalAlignment="Top" Width="62"/>
-                <Label Content="{Binding FastMode}" HorizontalAlignment="Left" Margin="72,20,0,0" VerticalAlignment="Top" Width="62" BorderBrush="#FF8F8F8F" BorderThickness="1"/>
-                <Label Content="{Binding Rotation}" HorizontalAlignment="Left" Margin="72,50,0,0" VerticalAlignment="Top" Width="62" BorderBrush="#FF8F8F8F" BorderThickness="1"/>
-                <Label Content="{Binding Throttle}" HorizontalAlignment="Left" Margin="229,50,0,0" VerticalAlignment="Top" Width="62" BorderBrush="#FF8F8F8F" BorderThickness="1"/>
-                <Label Content="{Binding Pitch}" HorizontalAlignment="Left" Margin="72,80,0,0" VerticalAlignment="Top" Width="62" BorderBrush="#FF8F8F8F" BorderThickness="1"/>
-                <Label Content="{Binding Role}" HorizontalAlignment="Left" Margin="229,80,0,0" VerticalAlignment="Top" Width="62" BorderBrush="#FF8F8F8F" BorderThickness="1"/>
-            </Grid>
-        </GroupBox>
-        <GroupBox Header="Tello Status" HorizontalAlignment="Left" Height="182" Margin="815,174,0,0" VerticalAlignment="Top" Width="320" BorderBrush="#FF7C7C7C">
-            <Grid>
-                <Label Content="Memo :&#xD;&#xA;  Battery&#xD;&#xA;  Height&#xD;&#xA;  " HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Height="140" Width="288"/>
-            </Grid>
-        </GroupBox>
-    </Grid>
+	<Window.DataContext>
+		<local:ViewModel/>
+	</Window.DataContext>
+	<Grid>
+		<Border BorderBrush="#FF7C7C7C" Height="450" Width="800" BorderThickness="3" Margin="10,10,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" CornerRadius="5" >
+			<Image Margin="5" />
+		</Border>
+		<GroupBox Header="Operation Status" HorizontalAlignment="Left" Height="158" Margin="815,11,0,0" VerticalAlignment="Top" Width="320" BorderBrush="#FF8B8B8B">
+			<Grid>
+				<Label Content="FastMode" HorizontalAlignment="Left" Margin="5,20,0,0" VerticalAlignment="Top" Width="62"/>
+				<Label Content="Rotation" HorizontalAlignment="Left" Margin="5,50,0,0" VerticalAlignment="Top" Width="62"/>
+				<Label Content="Throttle" HorizontalAlignment="Left" Margin="162,50,0,0" VerticalAlignment="Top" Width="62"/>
+				<Label Content="Pitch" HorizontalAlignment="Left" Margin="5,80,0,0" VerticalAlignment="Top" Width="62" />
+				<Label Content="Role" HorizontalAlignment="Left" Margin="162,80,0,0" VerticalAlignment="Top" Width="62"/>
+				<Label Content="{Binding FastMode}" HorizontalAlignment="Left" Margin="72,20,0,0" VerticalAlignment="Top" Width="62" BorderBrush="#FF8F8F8F" BorderThickness="1"/>
+				<Label Content="{Binding Rotation}" HorizontalAlignment="Left" Margin="72,50,0,0" VerticalAlignment="Top" Width="62" BorderBrush="#FF8F8F8F" BorderThickness="1"/>
+				<Label Content="{Binding Throttle}" HorizontalAlignment="Left" Margin="229,50,0,0" VerticalAlignment="Top" Width="62" BorderBrush="#FF8F8F8F" BorderThickness="1"/>
+				<Label Content="{Binding Pitch}" HorizontalAlignment="Left" Margin="72,80,0,0" VerticalAlignment="Top" Width="62" BorderBrush="#FF8F8F8F" BorderThickness="1"/>
+				<Label Content="{Binding Role}" HorizontalAlignment="Left" Margin="229,80,0,0" VerticalAlignment="Top" Width="62" BorderBrush="#FF8F8F8F" BorderThickness="1"/>
+			</Grid>
+		</GroupBox>
+		<GroupBox Header="Tello Status" HorizontalAlignment="Left" Height="182" Margin="815,174,0,0" VerticalAlignment="Top" Width="320" BorderBrush="#FF7C7C7C">
+			<Grid>
+				<Label Content="Memo :&#xD;&#xA;  Battery&#xD;&#xA;  Height&#xD;&#xA;  " HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Height="140" Width="288"/>
+			</Grid>
+		</GroupBox>
+	</Grid>
 </Window>

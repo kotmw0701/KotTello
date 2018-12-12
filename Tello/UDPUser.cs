@@ -15,11 +15,14 @@ namespace Tello {
         }
 
         public void Send(string message) {
-            var datagram = Encoding.ASCII.GetBytes(message);
-            client.Send(datagram, datagram.Length);
+            Send(Encoding.ASCII.GetBytes(message));
         }
 
         public void Send(byte[] message) {
+            StringBuilder builder = new StringBuilder("[");
+            foreach (byte data in message) builder.Append(" 0x").Append(data.ToString("X2"));
+            builder.Append(" ]");
+            Console.WriteLine(builder.ToString());
             client.Send(message, message.Length);
         }
     }
