@@ -19,10 +19,7 @@ namespace Tello {
         }
 
         public void Send(byte[] message) {
-            StringBuilder builder = new StringBuilder("[");
-            foreach (byte data in message) builder.Append(" 0x").Append(data.ToString("X2"));
-            builder.Append(" ]");
-            Console.WriteLine(builder.ToString());
+            Console.WriteLine($"Send	: {Commands.GetType(message).DisplayName()}");
             client.Send(message, message.Length);
         }
     }

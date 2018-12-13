@@ -37,5 +37,16 @@ namespace Tello {
 		public static readonly byte[] REQUEST_VIDEO =	{ 0xCC, 0x58, 0x00, 0x00, 0x60, 0x25, 0x00, 0x00, 0x00, 0x00, 0x00 };//データ部分なしっぽい？
 		//                                                head  packetLen   crc8  type  commandID    sequence   rate    crc16
 		public static readonly byte[] SET_VIDEOBITRATE ={ 0xCC, 0x60, 0x00, 0x00, 0x68, 0x20, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+
+		public static CommandType GetType(byte[] packets) {
+			if (packets.Length < 7) return CommandType.Undefined;
+			return GetType(packets[5] | (packets[6] << 8));
+		}
+
+		public static CommandType GetType(int value) {
+			foreach(CommandType type in Enum.GetValues(typeof(CommandType)))
+				if (value == (int)type) return type;
+			return CommandType.Undefined;
+		}
 	}
 }

@@ -51,4 +51,62 @@
         Query_Attitude =        0x1058, //    ->
         Set_Attitude =          0x1059  //    ->
     }
+
+	static class TypeEnumExt {
+		public static string DisplayName(this CommandType type) {
+			switch (type) {
+				case CommandType.Undefined:				break;
+				case CommandType.Connect:				return "Connect";
+				case CommandType.Connected:				return "Connected";
+				case CommandType.Query_SSID:			return "Query SSID";
+				case CommandType.Set_SSID:				return "Set SSID";
+				case CommandType.Query_Pass:			return "Query Password";
+				case CommandType.Set_Pass:				return "Set Password";
+				case CommandType.Query_WiFi:			return "Query WiFi Region";
+				case CommandType.Set_WiFi:				return "Set WiFi Region";
+				case CommandType.WiFi_Str:				return "WiFi Strength";
+				case CommandType.Set_VideoBitRate:		return "Set Video Bit-Rate";
+				case CommandType.Set_VideoDynRate:		return "Set Video Dyn. Adj. Rate";
+				case CommandType.Set_Eis:				return "Set EIS";
+				case CommandType.Req_Video:				return "Request Video Start";
+				case CommandType.Query_VideoBitRate:	return "Query Video Bit-Rate";
+				case CommandType.TakePicture:			return "Take Picture";
+				case CommandType.Set_VideoAspect:		return "Set Video Aspect";
+				case CommandType.Start_Rec:				return "Start Recording";
+				case CommandType.EValue:				return "Exposure Values";
+				case CommandType.Light_Str:				return "Light Strength";
+				case CommandType.Query_JpegQty:			return "Query JPEG Quality";
+				case CommandType.Error_1:				return "Error 1";
+				case CommandType.Error_2:				return "Error 2";
+				case CommandType.Query_Ver:				return "Query Version";
+				case CommandType.Set_Date:				return "Set Date & Time";
+				case CommandType.Query_ActivTime:		return "Query Activation Time";
+				case CommandType.Query_LoaderVar:		return "Query Loader Version";
+				case CommandType.Set_Sticks:			return "Set Sticks";
+				case CommandType.TakeOff:				return "Take Off";
+				case CommandType.Land:					return "Land";
+				case CommandType.FlightStat:			return "Flight Status";
+				case CommandType.Set_HeightLim:			return "Set Height Limit";
+				case CommandType.Flip:					return "Flip";
+				case CommandType.ThrowTakeOff:			return "Throw Take Off";
+				case CommandType.PalmLand:				return "Palm Land";
+				case CommandType.FileSize:				return "File Size";
+				case CommandType.FileData:				return "File Data";
+				case CommandType.FileDone:				return "File Done";
+				case CommandType.Start_SmartVideo:		return "Start Smart Video";
+				case CommandType.SmartVideoStat:		return "Smart Video Status";
+				case CommandType.LogHeader:				return "Log Header";
+				case CommandType.LogData:				return "Log Data";
+				case CommandType.LogConf:				return "Log Config.";
+				case CommandType.Bounce:				return "Bounce";
+				case CommandType.Calibration:			return "Calibration";
+				case CommandType.Set_LowBatTreshold:	return "Set Low Battery Threshold";
+				case CommandType.Query_HeightLim:		return "Query Height Limit";
+				case CommandType.Query_LowBatThreshold:	return "Query Low Battery Threshold";
+				case CommandType.Query_Attitude:		return "Query Attitude";
+				case CommandType.Set_Attitude:			return "Set Attitude";
+			}
+			return "Undefined";
+		}
+	}
 }

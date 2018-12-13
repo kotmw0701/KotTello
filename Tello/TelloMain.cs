@@ -12,7 +12,7 @@ namespace Tello {
 		public static int wifiStrength = 0;
 		private static ConnectionState state = ConnectionState.Disconnected;
 		private CancellationTokenSource token = new CancellationTokenSource();
-
+		private GamePadManager gamePadManager;
 
 		private static readonly int VIDEO_PORT = 0x1796;//6038
 		private static ushort sequence = 1;
@@ -56,17 +56,17 @@ namespace Tello {
 			Task.Factory.StartNew(async () => {
 				while (!token.IsCancellationRequested) {
 					var received = await client.Receive();
+					Console.WriteLine("Receive	: "+Commands.GetType(received.bytes).DisplayName());
 					lastMessageTime = DateTime.Now;
 					if (state == ConnectionState.Connecting && received.Message.StartsWith("conn_ack")) {
+						Console.WriteLine("Connected");
 						state = ConnectionState.Connected;
-						SetVideoBitRate(3);
 						connected = true;
 						Heartbeat();
 						RequestIFrame();
 						continue;
 					}
-					int cmdID = (received.bytes[5] | (received.bytes[6] << 8));
-					Console.WriteLine($"0x{cmdID.ToString("X2")}");
+					CommandType type = Commands.GetType(received.bytes);
 				}
 			}, token);
 
@@ -75,10 +75,10 @@ namespace Tello {
 			Task.Factory.StartNew(async () => {
 				try {
 					while (!token.IsCancellationRequested) {
-						Console.WriteLine("Video");
+						Console.WriteLine("Video Waiting...");
 						var received = await videoServer.Receive();
+						Console.WriteLine("Video Receive");
 						Console.WriteLine(received);
-						
 					}
 				} catch (Exception e) {
 					Console.WriteLine("Video server Exception : " + e.Message);
@@ -94,6 +94,7 @@ namespace Tello {
 				int tick = 0;
 				while (!token.IsCancellationRequested) {
 					if (state == ConnectionState.Connected) {
+						//GamePadStick(gamePadManager);
 						tick++;
 						if ((tick % 5) == 0) RequestIFrame();
 					}
@@ -131,8 +132,8 @@ namespace Tello {
 			client.Send(packets);
 		}
 
-		public static void GamePadStick(GamePadManager manager) {
-			Stick(manager.IsFastMode, manager.LeftX, manager.LeftY, manager.RightY, manager.RightX);
+		public static void GamePadStick(ControllerStatus status) {
+			Stick(status.IsFastMode, status.Rotation, status.Throttle, status.Pitch, status.Role);
 		}
 
 		public static void Stick(bool isFast, double ratioRotation, double ratioThrottle, double ratioPitch, double ratioRole) {
@@ -175,8 +176,12 @@ namespace Tello {
 			byte[] connectPacket = Encoding.UTF8.GetBytes("conn_req:\x00\x00");
 			connectPacket[connectPacket.Length - 2] = (byte)(VIDEO_PORT & 0xFF);
 			connectPacket[connectPacket.Length - 1] = (byte)((VIDEO_PORT >> 8) & 0xFF);
-			Console.WriteLine($"{connectPacket[connectPacket.Length - 1] << 8} : {connectPacket[connectPacket.Length - 2]}");
+			Console.WriteLine($"{(connectPacket[connectPacket.Length - 1] << 8) | (connectPacket[connectPacket.Length - 2])}");
 			client.Send(connectPacket);
+		}
+
+		private static void Disconnect() {
+
 		}
 
 		private static byte[] PacketCopy(byte[] sourceArray) {
