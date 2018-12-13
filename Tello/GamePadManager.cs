@@ -74,7 +74,7 @@ namespace Tello {
 		private readonly int interval = 20;
 		private CancellationTokenSource tokenSource = new CancellationTokenSource();
 
-		public delegate void StickStream(ControllerStatus status);
+		public delegate void StickStream(ControllData status);
 		public event StickStream Stream;
 
 		public GamePadManager() : this(20) { }

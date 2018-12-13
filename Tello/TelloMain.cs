@@ -12,7 +12,7 @@ namespace Tello {
 		public static int wifiStrength = 0;
 		private static ConnectionState state = ConnectionState.Disconnected;
 		private CancellationTokenSource token = new CancellationTokenSource();
-		private GamePadManager gamePadManager;
+		private ControllData controller;
 
 		private static readonly int VIDEO_PORT = 0x1796;//6038
 		private static ushort sequence = 1;
@@ -59,7 +59,6 @@ namespace Tello {
 					Console.WriteLine("Receive	: "+Commands.GetType(received.bytes).DisplayName());
 					lastMessageTime = DateTime.Now;
 					if (state == ConnectionState.Connecting && received.Message.StartsWith("conn_ack")) {
-						Console.WriteLine("Connected");
 						state = ConnectionState.Connected;
 						connected = true;
 						Heartbeat();
@@ -75,10 +74,8 @@ namespace Tello {
 			Task.Factory.StartNew(async () => {
 				try {
 					while (!token.IsCancellationRequested) {
-						Console.WriteLine("Video Waiting...");
 						var received = await videoServer.Receive();
-						Console.WriteLine("Video Receive");
-						Console.WriteLine(received);
+						Console.WriteLine($"Video : {received}");
 					}
 				} catch (Exception e) {
 					Console.WriteLine("Video server Exception : " + e.Message);
@@ -132,7 +129,7 @@ namespace Tello {
 			client.Send(packets);
 		}
 
-		public static void GamePadStick(ControllerStatus status) {
+		public static void GamePadStick(ControllData status) {
 			Stick(status.IsFastMode, status.Rotation, status.Throttle, status.Pitch, status.Role);
 		}
 
