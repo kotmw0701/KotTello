@@ -72,9 +72,9 @@ namespace Tello {
 
 		private readonly Controller controller;
 		private readonly int interval = 20;
-		private CancellationTokenSource tokenSource = new CancellationTokenSource();
+		private CancellationTokenSource tokenSource = null;
 
-		public delegate void StickStream(ControllData status);
+		public delegate void StickStream(GamePadManager manager);
 		public event StickStream Stream;
 
 		public GamePadManager() : this(20) { }
@@ -85,6 +85,7 @@ namespace Tello {
 		}
 
 		public void StartStream() {
+			if(tokenSource == null) tokenSource = new CancellationTokenSource();
 			CancellationToken token = tokenSource.Token;
 
 			Task.Factory.StartNew(async () => {
@@ -117,9 +118,18 @@ namespace Tello {
 					LTrigger = pad.LeftTrigger / 255;
 					RTrigger = pad.RightTrigger / 255;
 					IsFastMode = ((LTrigger == 1.0) && (RTrigger == 1.0));
+					Stream(this);
 					await Task.Delay(10);
 				}
-			}, token);
+			}, token).ContinueWith(t => {
+				tokenSource.Dispose();
+				tokenSource = null;
+			});
+		}
+
+		public void StopStream() {
+			if (tokenSource == null) return;
+			tokenSource.Cancel();
 		}
 	}
 }

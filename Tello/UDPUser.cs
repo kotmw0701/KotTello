@@ -19,7 +19,6 @@ namespace Tello {
         }
 
         public void Send(byte[] message) {
-            Console.WriteLine($"Send	: {Commands.GetType(message).DisplayName()}");
             client.Send(message, message.Length);
         }
     }

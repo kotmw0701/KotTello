@@ -7,15 +7,15 @@ using System.Threading.Tasks;
 
 namespace Tello {
 	internal class TelloMain {
-		private static UdpUser client;
-		private static DateTime lastMessageTime;//タイムアウトのアレ
-		public static int wifiStrength = 0;
-		private static ConnectionState state = ConnectionState.Disconnected;
+		private UdpUser client;
+		private DateTime lastMessageTime;//タイムアウトのアレ
+		public int wifiStrength = 0;
+		private ConnectionState state = ConnectionState.Disconnected;
 		private CancellationTokenSource token = new CancellationTokenSource();
-		private ControllData controller;
 
-		private static readonly int VIDEO_PORT = 0x1796;//6038
-		private static ushort sequence = 1;
+		private ControllData controller = new ControllData();
+		private readonly int VIDEO_PORT = 0x1796;//6038
+		private ushort sequence = 1;
 		private bool connected = false;
 		private int iFrameRate = 5;
 
@@ -56,7 +56,7 @@ namespace Tello {
 			Task.Factory.StartNew(async () => {
 				while (!token.IsCancellationRequested) {
 					var received = await client.Receive();
-					Console.WriteLine("Receive	: "+Commands.GetType(received.bytes).DisplayName());
+					Console.WriteLine("Receive	: " + Commands.GetType(received.bytes).DisplayName());
 					lastMessageTime = DateTime.Now;
 					if (state == ConnectionState.Connecting && received.Message.StartsWith("conn_ack")) {
 						state = ConnectionState.Connected;
@@ -70,12 +70,14 @@ namespace Tello {
 			}, token);
 
 			var videoServer = new UdpListener(VIDEO_PORT);
-
+			var videoClient = UdpUser.ConnectTo("127.0.0.1", 7038);
+			//ffmpeg -i udp://127.0.0.1:7038 -f sdl "Tello"
+			//一時的に
 			Task.Factory.StartNew(async () => {
 				try {
 					while (!token.IsCancellationRequested) {
 						var received = await videoServer.Receive();
-						Console.WriteLine($"Video : {received}");
+						videoClient.Send(received.bytes.Skip(2).ToArray());
 					}
 				} catch (Exception e) {
 					Console.WriteLine("Video server Exception : " + e.Message);
@@ -91,7 +93,7 @@ namespace Tello {
 				int tick = 0;
 				while (!token.IsCancellationRequested) {
 					if (state == ConnectionState.Connected) {
-						//GamePadStick(gamePadManager);
+						ControllerUpdate();
 						tick++;
 						if ((tick % 5) == 0) RequestIFrame();
 					}
@@ -100,28 +102,28 @@ namespace Tello {
 			}, token);
 		}
 
-		public static void TakeOff() {
+		public void TakeOff() {
 			byte[] packets = PacketCopy(Commands.TAKEOFF);
 			SetPacketSequence(packets);
 			SetPacketCRCs(packets);
 			client.Send(packets);
 		}
 
-		public static void Land() {
+		public void Land() {
 			byte[] packets = PacketCopy(Commands.LAND);
 			SetPacketSequence(packets);
 			SetPacketCRCs(packets);
 			client.Send(packets);
 		}
 
-		public static void RequestIFrame() {
+		public void RequestIFrame() {
 			byte[] packets = PacketCopy(Commands.REQUEST_VIDEO);
 			SetPacketSequence(packets);
 			SetPacketCRCs(packets);
 			client.Send(packets);
 		}
 
-		public static void SetVideoBitRate(byte rate) {
+		public void SetVideoBitRate(byte rate) {
 			byte[] packets = PacketCopy(Commands.SET_VIDEOBITRATE);
 			packets[9] = rate;
 			SetPacketSequence(packets);
@@ -129,11 +131,11 @@ namespace Tello {
 			client.Send(packets);
 		}
 
-		public static void GamePadStick(ControllData status) {
-			Stick(status.IsFastMode, status.Rotation, status.Throttle, status.Pitch, status.Role);
-		}
+		public void ControllerUpdate() => ControllerUpdate(controller);
 
-		public static void Stick(bool isFast, double ratioRotation, double ratioThrottle, double ratioPitch, double ratioRole) {
+		public void ControllerUpdate(ControllData status) => Stick(status.IsFastMode, status.Rotation, status.Throttle, status.Pitch, status.Role);
+
+		private void Stick(bool isFast, double ratioRotation, double ratioThrottle, double ratioPitch, double ratioRole) {
 			byte[] packets = PacketCopy(Commands.STICK);
 			short fastMode = (short)(isFast ? 1 : 0);
 
@@ -163,7 +165,7 @@ namespace Tello {
 			client.Send(packets);
 		}
 
-		private static void Connect() {
+		private void Connect() {
 			client = UdpUser.ConnectTo("192.168.10.1", 8889);
 
 			state = ConnectionState.Connecting;
@@ -177,23 +179,23 @@ namespace Tello {
 			client.Send(connectPacket);
 		}
 
-		private static void Disconnect() {
+		private void Disconnect() {
 
 		}
 
-		private static byte[] PacketCopy(byte[] sourceArray) {
+		private byte[] PacketCopy(byte[] sourceArray) {
 			byte[] packets = new byte[sourceArray.Length];
 			Array.Copy(sourceArray, packets, packets.Length);
 			return packets;
 		}
 
-		private static void SetPacketSequence(byte[] packet) {
+		private void SetPacketSequence(byte[] packet) {
 			packet[7] = (byte)(sequence & 0xFF);
 			packet[8] = (byte)((sequence >> 8) & 0xFF);
 			sequence++;
 		}
 
-		private static void SetPacketCRCs(byte[] packet) {
+		private void SetPacketCRCs(byte[] packet) {
 			CRC.CalcUCRC(packet, 4);
 			CRC.CalcCRC(packet, packet.Length);
 		}
