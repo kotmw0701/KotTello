@@ -6,7 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 namespace Tello {
-	internal class TelloMain {
+	internal class TelloManager {
 		private UdpUser client;
 		private DateTime lastMessageTime;//タイムアウトのアレ
 		public int wifiStrength = 0;
@@ -19,11 +19,10 @@ namespace Tello {
 		private bool connected = false;
 		private int iFrameRate = 5;
 
-		public TelloMain() {
-			Connection();
-		}
 
 		private void Connection() {
+            if (connected)
+                return;
 			Task.Factory.StartNew(async () => {
 				var timeout = new TimeSpan(3000);
 				while (true) {
@@ -62,6 +61,7 @@ namespace Tello {
 						state = ConnectionState.Connected;
 						connected = true;
 						Heartbeat();
+						SetVideoAspect(true);
 						RequestIFrame();
 						continue;
 					}
@@ -103,32 +103,27 @@ namespace Tello {
 		}
 
 		public void TakeOff() {
-			byte[] packets = PacketCopy(Commands.TAKEOFF);
-			SetPacketSequence(packets);
-			SetPacketCRCs(packets);
-			client.Send(packets);
+			SendPacket(PacketCopy(Commands.TAKEOFF));
 		}
 
 		public void Land() {
-			byte[] packets = PacketCopy(Commands.LAND);
-			SetPacketSequence(packets);
-			SetPacketCRCs(packets);
-			client.Send(packets);
+			SendPacket(PacketCopy(Commands.LAND));
 		}
 
 		public void RequestIFrame() {
-			byte[] packets = PacketCopy(Commands.REQUEST_VIDEO);
-			SetPacketSequence(packets);
-			SetPacketCRCs(packets);
-			client.Send(packets);
+			SendPacket(PacketCopy(Commands.REQUEST_VIDEO));
 		}
 
 		public void SetVideoBitRate(byte rate) {
 			byte[] packets = PacketCopy(Commands.SET_VIDEOBITRATE);
 			packets[9] = rate;
-			SetPacketSequence(packets);
-			SetPacketCRCs(packets);
-			client.Send(packets);
+			SendPacket(packets);
+		}
+
+		public void SetVideoAspect(bool wide) {
+			byte[] packets = PacketCopy(Commands.SET_VIDEOASPECT);
+			packets[9] = (byte)(wide ? 1 : 0);
+			SendPacket(packets);
 		}
 
 		public void ControllerUpdate() => ControllerUpdate(controller);
@@ -169,9 +164,6 @@ namespace Tello {
 			client = UdpUser.ConnectTo("192.168.10.1", 8889);
 
 			state = ConnectionState.Connecting;
-			//                       0     1     2     3     4     5     6     7     8     9     10    11    12    13    14    15    16    17    18    19    20    21    22
-			//                       head  packetLen   crc8  type  commandID    sequence      data
-			//byte[] connectPacket = { 0xCC, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00};
 			byte[] connectPacket = Encoding.UTF8.GetBytes("conn_req:\x00\x00");
 			connectPacket[connectPacket.Length - 2] = (byte)(VIDEO_PORT & 0xFF);
 			connectPacket[connectPacket.Length - 1] = (byte)((VIDEO_PORT >> 8) & 0xFF);
@@ -180,7 +172,18 @@ namespace Tello {
 		}
 
 		private void Disconnect() {
+            token.Cancel();
+            connected = false;
+            if(state == ConnectionState.Disconnected) {
 
+            }
+            state = ConnectionState.Disconnected;
+		}
+
+		private void SendPacket(byte[] packet) {
+			SetPacketSequence(packet);
+			SetPacketCRCs(packet);
+			client.Send(packet);
 		}
 
 		private byte[] PacketCopy(byte[] sourceArray) {

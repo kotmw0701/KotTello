@@ -19,8 +19,16 @@ namespace Tello {
 	/// </summary>
 	public partial class MainWindow : Window {
 		public MainWindow() {
-			TelloMain tello = new TelloMain();
+			GamePadManager manager = new GamePadManager();
+			manager.StartStream();
+			manager.Stream += (data) => {
+				Console.WriteLine(data.Start);
+			};
 			InitializeComponent();
 		}
-	}
+
+        private void Button_Click(object sender, RoutedEventArgs e) {
+
+        }
+    }
 }

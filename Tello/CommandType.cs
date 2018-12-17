@@ -1,5 +1,8 @@
 ﻿namespace Tello {
-    internal enum CommandType : ushort{// Direction
+	/// <summary>
+	/// https://tellopilots.com/wiki/protocol/
+	/// </summary>
+	internal enum CommandType : ushort{// Direction
         Undefined =             0x0000,
         Connect =               0x0001, //    ->
         Connected =             0x0002, //    <-
