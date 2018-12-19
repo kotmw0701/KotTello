@@ -7,22 +7,38 @@ using System.Threading.Tasks;
 
 namespace Tello {
 	internal class TelloManager {
+
+		public static TelloManager Instance { get; } = new TelloManager();
+		private TelloManager() { }
+
+		public ControllData Controller {
+			get => _controller;
+			set {
+				_controller = value;
+				OnControllerUpdate(_controller);
+			}
+		}
+
 		private UdpUser client;
 		private DateTime lastMessageTime;//タイムアウトのアレ
 		public int wifiStrength = 0;
 		private ConnectionState state = ConnectionState.Disconnected;
 		private CancellationTokenSource token = new CancellationTokenSource();
 
-		private ControllData controller = new ControllData();
 		private readonly int VIDEO_PORT = 0x1796;//6038
-		private ushort sequence = 1;
 		private bool connected = false;
 		private int iFrameRate = 5;
+		private ushort sequence = 1;
+		private ControllData _controller = new ControllData();
 
+		public delegate void connectionEvent(ConnectionState state);
+		public event connectionEvent OnConnection;
+		public delegate void controllerUpdate(ControllData data);
+		public event controllerUpdate OnControllerUpdate;
 
-		private void Connection() {
-            if (connected)
-                return;
+		public void Connection() {
+			if (connected)
+				return;
 			Task.Factory.StartNew(async () => {
 				var timeout = new TimeSpan(3000);
 				while (true) {
@@ -32,12 +48,13 @@ namespace Tello {
 							lastMessageTime = DateTime.Now;
 							Listener();
 							break;
-						case ConnectionState.Connecting:
 						case ConnectionState.Connected:
+						case ConnectionState.Connecting:
 							var elapsed = DateTime.Now - lastMessageTime;
-							if (elapsed.Seconds > 2) {
+							if (elapsed.Seconds > 5) {
 								Console.WriteLine("Connection Timeout");
-								//Disconnect;
+								Disconnect();
+								OnConnection(ConnectionState.Disconnected);
 							}
 							break;
 						case ConnectionState.Paused:
@@ -50,40 +67,47 @@ namespace Tello {
 		}
 
 		private void Listener() {
-
-			CancellationToken token = this.token.Token;
-			Task.Factory.StartNew(async () => {
-				while (!token.IsCancellationRequested) {
-					var received = await client.Receive();
-					Console.WriteLine("Receive	: " + Commands.GetType(received.bytes).DisplayName());
-					lastMessageTime = DateTime.Now;
-					if (state == ConnectionState.Connecting && received.Message.StartsWith("conn_ack")) {
-						state = ConnectionState.Connected;
-						connected = true;
-						Heartbeat();
-						SetVideoAspect(true);
-						RequestIFrame();
-						continue;
-					}
-					CommandType type = Commands.GetType(received.bytes);
-				}
-			}, token);
-
-			var videoServer = new UdpListener(VIDEO_PORT);
-			var videoClient = UdpUser.ConnectTo("127.0.0.1", 7038);
-			//ffmpeg -i udp://127.0.0.1:7038 -f sdl "Tello"
-			//一時的に
-			Task.Factory.StartNew(async () => {
-				try {
+			try {
+				CancellationToken token = this.token.Token;
+				Task.Factory.StartNew(async () => {
 					while (!token.IsCancellationRequested) {
-						var received = await videoServer.Receive();
-						videoClient.Send(received.bytes.Skip(2).ToArray());
+						var received = await client.Receive();
+						Console.WriteLine("Receive	: " + Commands.GetType(received.bytes).DisplayName());
+						lastMessageTime = DateTime.Now;
+						if (state == ConnectionState.Connecting && received.Message.StartsWith("conn_ack")) {
+							state = ConnectionState.Connected;
+							connected = true;
+							Heartbeat();
+							SetVideoAspect(true);
+							RequestIFrame();
+							continue;
+						}
+						CommandType type = Commands.GetType(received.bytes);
+						if(type == CommandType.TakeOff) {
+							Console.WriteLine(received);
+						}
 					}
-				} catch (Exception e) {
-					Console.WriteLine("Video server Exception : " + e.Message);
-					Console.WriteLine(e.StackTrace);
-				}
-			}, token);
+				}, token);
+
+				var videoServer = new UdpListener(VIDEO_PORT);
+				var videoClient = UdpUser.ConnectTo("127.0.0.1", 7038);
+				//ffmpeg -i udp://127.0.0.1:7038 -f sdl "Tello"
+				//一時的に
+				Task.Factory.StartNew(async () => {
+					try {
+						while (!token.IsCancellationRequested) {
+							var received = await videoServer.Receive();
+							videoClient.Send(received.bytes.Skip(2).ToArray());
+						}
+					} catch (Exception e) {
+						Console.WriteLine("Video server Exception : " + e.Message);
+						Console.WriteLine(e.StackTrace);
+					}
+				}, token);
+			} catch (Exception ex) {
+				Console.WriteLine(ex.StackTrace);
+				Console.WriteLine(ex.Message);
+			}
 		}
 
 		private void Heartbeat() {
@@ -110,6 +134,14 @@ namespace Tello {
 			SendPacket(PacketCopy(Commands.LAND));
 		}
 
+		public void SetMaxHeight(int height) {
+			byte[] packets = PacketCopy(Commands.SET_MAXHEIGHT);
+			packets[9] = (byte)(height & 0xFF);
+			packets[10] = (byte)((height >> 8) & 0xFF);
+
+			SendPacket(packets);
+		}
+
 		public void RequestIFrame() {
 			SendPacket(PacketCopy(Commands.REQUEST_VIDEO));
 		}
@@ -126,7 +158,7 @@ namespace Tello {
 			SendPacket(packets);
 		}
 
-		public void ControllerUpdate() => ControllerUpdate(controller);
+		public void ControllerUpdate() => ControllerUpdate(Controller);
 
 		public void ControllerUpdate(ControllData status) => Stick(status.IsFastMode, status.Rotation, status.Throttle, status.Pitch, status.Role);
 
@@ -167,17 +199,17 @@ namespace Tello {
 			byte[] connectPacket = Encoding.UTF8.GetBytes("conn_req:\x00\x00");
 			connectPacket[connectPacket.Length - 2] = (byte)(VIDEO_PORT & 0xFF);
 			connectPacket[connectPacket.Length - 1] = (byte)((VIDEO_PORT >> 8) & 0xFF);
-			Console.WriteLine($"{(connectPacket[connectPacket.Length - 1] << 8) | (connectPacket[connectPacket.Length - 2])}");
+			Console.WriteLine($"Connecting Port : {(connectPacket[connectPacket.Length - 1] << 8) | (connectPacket[connectPacket.Length - 2])}");
 			client.Send(connectPacket);
 		}
 
 		private void Disconnect() {
-            token.Cancel();
-            connected = false;
-            if(state == ConnectionState.Disconnected) {
+			token.Cancel();
+			connected = false;
+			if (state == ConnectionState.Disconnected) {
 
-            }
-            state = ConnectionState.Disconnected;
+			}
+			state = ConnectionState.Disconnected;
 		}
 
 		private void SendPacket(byte[] packet) {

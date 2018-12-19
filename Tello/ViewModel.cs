@@ -61,5 +61,15 @@ namespace Tello {
 				RaizePropertyChanged(nameof(Role));
 			}
 		}
+
+		public ViewModel() {
+			TelloManager.Instance.OnControllerUpdate += (data) => {
+				FastMode = data.IsFastMode;
+				Rotation = (short)((data.Rotation * 660) + 1024);
+				Throttle = (short)((data.Throttle * 660) + 1024);
+				Pitch = (short)((data.Pitch * 660) + 1024);
+				Role = (short)((data.Role * 660) + 1024);
+			};
+		}
 	}
 }

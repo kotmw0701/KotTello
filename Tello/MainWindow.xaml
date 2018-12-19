@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Tello"
         mc:Ignorable="d"
-        Title="MainWindow" Height="496.53" Width="1155"
+        Title="MainWindow" Height="512.411" Width="1155"
         ResizeMode="NoResize">
     <Window.DataContext>
         <local:ViewModel/>
@@ -33,6 +33,6 @@
                 <Label Content="Memo :&#xD;&#xA;  Battery&#xD;&#xA;  Height&#xD;&#xA;  " HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Height="140" Width="288"/>
             </Grid>
         </GroupBox>
-        <Button Content="Connect" HorizontalAlignment="Left" Margin="1044,403,0,0" VerticalAlignment="Top" Width="91" Height="55" Click="Button_Click"/>
+        <Button x:Name="Connect" Content="Connect" HorizontalAlignment="Left" Margin="1033,405,0,0" VerticalAlignment="Top" Width="91" Height="55" Click="Button_Click"/>
     </Grid>
 </Window>

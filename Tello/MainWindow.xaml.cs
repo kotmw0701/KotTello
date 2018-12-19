@@ -20,15 +20,24 @@ namespace Tello {
 	public partial class MainWindow : Window {
 		public MainWindow() {
 			GamePadManager manager = new GamePadManager();
-			manager.StartStream();
 			manager.Stream += (data) => {
-				Console.WriteLine(data.Start);
+				TelloManager.Instance.Controller = new ControllData(data);
+				if (data.A) TelloManager.Instance.TakeOff();
+				if (data.B) TelloManager.Instance.Land();
+			};
+			manager.StartStream();
+			TelloManager.Instance.OnConnection += (state) => {
+				if (state == ConnectionState.Connected) TelloManager.Instance.SetMaxHeight(5);
+				Dispatcher.BeginInvoke(new Action(() => {
+					if (state == ConnectionState.Disconnected) (FindName("Connect") as Button).IsEnabled = true;
+				}));
 			};
 			InitializeComponent();
 		}
 
-        private void Button_Click(object sender, RoutedEventArgs e) {
-
-        }
-    }
+		private void Button_Click(object sender, RoutedEventArgs e) {
+			(FindName("Connect") as Button).IsEnabled = false;
+			TelloManager.Instance.Connection();
+		}
+	}
 }

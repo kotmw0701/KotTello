@@ -5,11 +5,21 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Tello {
-	class ControllData {
-		public double Rotation { get; private set; }
-		public double Throttle { get; private set; }
-		public double Pitch { get; private set; }
-		public double Role { get; private set; }
-		public bool IsFastMode { get; private set; }
+	internal struct ControllData {
+		public readonly double Rotation;
+		public readonly double Throttle;
+		public readonly double Pitch;
+		public readonly double Role;
+		public readonly bool IsFastMode;
+
+		public ControllData(GamePadManager manager) : this(manager.LeftX, manager.LeftY, manager.RightY, manager.RightX, manager.IsFastMode) { }
+
+		public ControllData(double rotation, double throttle, double pitch, double role, bool isfastmode) {
+			Rotation = rotation;
+			Throttle = throttle;
+			Pitch = pitch;
+			Role = role;
+			IsFastMode = isfastmode;
+		}
 	}
 }
