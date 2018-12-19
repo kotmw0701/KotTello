@@ -77,6 +77,7 @@ namespace Tello {
 						if (state == ConnectionState.Connecting && received.Message.StartsWith("conn_ack")) {
 							state = ConnectionState.Connected;
 							connected = true;
+							OnConnection(ConnectionState.Connected);
 							Heartbeat();
 							SetVideoAspect(true);
 							RequestIFrame();
@@ -84,6 +85,8 @@ namespace Tello {
 						}
 						CommandType type = Commands.GetType(received.bytes);
 						if(type == CommandType.TakeOff) {
+							Console.WriteLine(received);
+						} else if(type == CommandType.Query_HeightLim) {
 							Console.WriteLine(received);
 						}
 					}
@@ -158,6 +161,10 @@ namespace Tello {
 			SendPacket(packets);
 		}
 
+		public void QueryMaxHeight() {
+			SendPacket(PacketCopy(Commands.QUERY_MAXHEIGHT));
+		}
+
 		public void ControllerUpdate() => ControllerUpdate(Controller);
 
 		public void ControllerUpdate(ControllData status) => Stick(status.IsFastMode, status.Rotation, status.Throttle, status.Pitch, status.Role);
@@ -166,10 +173,10 @@ namespace Tello {
 			byte[] packets = PacketCopy(Commands.STICK);
 			short fastMode = (short)(isFast ? 1 : 0);
 
-			short rotation = (short)((ratioRotation * 660) + 1024);
-			short throttle = (short)((ratioThrottle * 660) + 1024);
-			short pitch = (short)((ratioPitch * 660) + 1024);
-			short role = (short)((ratioPitch * 660) + 1024);
+			short rotation = (short)((ratioRotation * 330) + 1024);
+			short throttle = (short)((ratioThrottle * 330) + 1024);
+			short pitch = (short)((ratioPitch * 330) + 1024);
+			short role = (short)((ratioPitch * 330) + 1024);
 
 			var data = (fastMode << 44) + (rotation << 22) + (pitch << 11) + role;
 

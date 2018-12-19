@@ -40,6 +40,9 @@ namespace Tello {
 		//												  head	packetLen	crc8  type	commandID	 sequence	data	crc16
 		public static readonly byte[] SET_VIDEOASPECT = { 0xCC, 0x60, 0x00, 0x00, 0x68, 0x31, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 
+		public static readonly byte[] QUERY_MAXHEIGHT = { 0xCC, 0x58, 0x00, 0x00, 0x48, 0x56, 0x10, 0x00, 0x00, 0x00, 0x00 };
+		
+
 		public static CommandType GetType(byte[] packets) {
 			if (packets.Length < 7) return CommandType.Undefined;
 			return GetType(packets[5] | (packets[6] << 8));
